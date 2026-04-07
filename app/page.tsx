@@ -35,6 +35,13 @@ export default function Home() {
   }
 
   async function PatchTodo(id: number, completed: boolean) {
+    // Update UI instantly
+    setTodods((prev) =>
+      prev.map((todo) => (todo.id === id ? { ...todo, completed } : todo)),
+    );
+
+    // Sync with backend in background
+
     await fetch("/api/todos", {
       method: "PATCH",
       headers: {
@@ -42,6 +49,18 @@ export default function Home() {
       },
       body: JSON.stringify({ id, completed }),
     });
+    FetchTodo();
+  }
+
+  async function DeleteTodo(id: number) {
+    await fetch("/api/todos", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id }),
+    });
+    FetchTodo();
   }
 
   useEffect(() => {
@@ -71,9 +90,16 @@ export default function Home() {
           >
             <input
               type="checkbox"
+              checked={todo.completed}
               onChange={(e) => PatchTodo(todo.id, e.target.checked)}
             />
             <span className="flex-1">{todo.title}</span>
+            <button
+              onClick={() => DeleteTodo(todo.id)}
+              className="bg-blue-500 text-white px-1 py-1 rounded hover:bg-blue-600"
+            >
+              DELETE
+            </button>
           </div>
         ))}
       </div>

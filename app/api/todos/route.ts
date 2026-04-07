@@ -48,3 +48,14 @@ export async function PATCH(request: Request) {
 
   return Response.json(todo, { status: 200 });
 }
+
+export async function DELETE(request: Request) {
+  const body = await request.json();
+  const { id } = body;
+
+  const todo = await prisma.todo.delete({
+    where: { id },
+  });
+
+  return Response.json(todo, { status: 200 });
+}
