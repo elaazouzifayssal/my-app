@@ -12,6 +12,7 @@ type TODO = {
 export default function Home() {
   const [title, setTitle] = useState("");
   const [todos, setTodods] = useState<TODO[]>([]);
+  const [completed, setCompleted] = useState(false);
 
   async function handleAddTodo() {
     await fetch("/api/todos", {
@@ -31,6 +32,16 @@ export default function Home() {
     const data = await response.json();
 
     setTodods(data);
+  }
+
+  async function PatchTodo(id: number, completed: boolean) {
+    await fetch("/api/todos", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id, completed }),
+    });
   }
 
   useEffect(() => {
@@ -58,6 +69,10 @@ export default function Home() {
             key={todo.id}
             className="flex items-center border border-gray-200 rounded p-3 mb-2"
           >
+            <input
+              type="checkbox"
+              onChange={(e) => PatchTodo(todo.id, e.target.checked)}
+            />
             <span className="flex-1">{todo.title}</span>
           </div>
         ))}

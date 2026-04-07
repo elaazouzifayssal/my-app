@@ -36,3 +36,15 @@ export async function POST(request: Request) {
     return Response.json({ error: "Failed to create todo" }, { status: 500 });
   }
 }
+
+export async function PATCH(request: Request) {
+  const body = await request.json();
+  const { id, completed } = body;
+
+  const todo = await prisma.todo.update({
+    where: { id },
+    data: { completed },
+  });
+
+  return Response.json(todo, { status: 200 });
+}
