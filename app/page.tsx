@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Button from "@/components/Button";
+import { useUser } from "@clerk/nextjs";
 
 type TODO = {
   id: number;
@@ -13,6 +14,7 @@ export default function Home() {
   const [title, setTitle] = useState("");
   const [todos, setTodods] = useState<TODO[]>([]);
   const [completed, setCompleted] = useState(false);
+  const { user } = useUser();
 
   async function handleAddTodo() {
     await fetch("/api/todos", {
@@ -69,6 +71,7 @@ export default function Home() {
 
   return (
     <main className="max-w-xl mx-auto p-8">
+      <div>Hello {user?.firstName} hhhh</div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold mb-4">My Todos</h1>
         <div className="flex gap-2">
@@ -80,7 +83,6 @@ export default function Home() {
           <Button onClick={handleAddTodo} label="Add Task" />
         </div>
       </div>
-
       <div>
         <h2 className="text-xl font-semibold mb-3">Tasks</h2>
         {todos.map((todo) => (
