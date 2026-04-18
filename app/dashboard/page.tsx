@@ -16,6 +16,7 @@ export default function Dashboard() {
   const [habits, setHabits] = useState<HABIT[]>([]);
   const { user } = useUser();
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   function getTodayLocalDate(): string {
     const d = new Date();
@@ -69,10 +70,17 @@ export default function Dashboard() {
 
   async function FetchHabit() {
     setIsLoading(true);
-    const response = await fetch("/api/habits/today");
-    const data: HABIT[] = await response.json();
-    setHabits(data);
-    setIsLoading(false);
+    setError(null);
+    try {
+      const response = await fetch("/api/habits/today");
+      if (!response.ok) throw new Error("Failed to load habits");
+      const data: HABIT[] = await response.json();
+      setHabits(data);
+    } catch {
+      setError("Could not load your habits. Check your connection.");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   async function DeleteHabit(id: number) {
@@ -116,6 +124,23 @@ export default function Dashboard() {
         <h2 className="text-xl font-semibold mb-3">Today Habits</h2>
         {isLoading ? (
           <p className="text-gray-400 text-sm">Loading your habits...</p>
+        ) : error ? (
+          <div className="text-center py-6">
+            <p className="text-red-500 mb-3">{error}</p>
+            <button
+              onClick={FetchHabit}
+              className="text-sm text-blue-500 underline"
+            >
+              Try again
+            </button>
+          </div>
+        ) : habits.length === 0 ? (
+          <div className="text-center py-10 text-gray-400">
+            <p className="text-lg mb-1">No habits yet!</p>
+            <p className="text-sm">
+              Add your first habit above to get started.
+            </p>
+          </div>
         ) : (
           habits.map((habit) => (
             <div
