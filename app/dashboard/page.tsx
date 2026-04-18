@@ -15,6 +15,7 @@ export default function Dashboard() {
   const [description, setDescription] = useState("");
   const [habits, setHabits] = useState<HABIT[]>([]);
   const { user } = useUser();
+  const [isLoading, setIsLoading] = useState(true);
 
   function getTodayLocalDate(): string {
     const d = new Date();
@@ -67,9 +68,11 @@ export default function Dashboard() {
   }
 
   async function FetchHabit() {
+    setIsLoading(true);
     const response = await fetch("/api/habits/today");
     const data: HABIT[] = await response.json();
     setHabits(data);
+    setIsLoading(false);
   }
 
   async function DeleteHabit(id: number) {
@@ -111,41 +114,45 @@ export default function Dashboard() {
       </div>
       <div>
         <h2 className="text-xl font-semibold mb-3">Today Habits</h2>
-        {habits.map((habit) => (
-          <div
-            key={habit.id}
-            className={`flex items-center border rounded p-3 mb-2 ${
-              habit.completedToday
-                ? "border-green-300 bg-green-50"
-                : "border-gray-200"
-            }`}
-          >
-            <input
-              type="checkbox"
-              checked={habit.completedToday}
-              onChange={(e) => AddHabitLog(habit.id, e.target.checked)}
-            />
-            <div className="flex flex-col flex-1">
-              <span
-                className={`font-medium ${habit.completedToday ? "line-through text-gray-400" : ""}`}
-              >
-                {habit.title}
-              </span>
-
-              {habit.description && (
-                <span className="text-gray-500 text-sm">
-                  {habit.description}
-                </span>
-              )}
-            </div>
-            <button
-              onClick={() => DeleteHabit(habit.id)}
-              className="bg-blue-500 text-white px-1 py-1 rounded hover:bg-blue-600"
+        {isLoading ? (
+          <p className="text-gray-400 text-sm">Loading your habits...</p>
+        ) : (
+          habits.map((habit) => (
+            <div
+              key={habit.id}
+              className={`flex items-center border rounded p-3 mb-2 ${
+                habit.completedToday
+                  ? "border-green-300 bg-green-50"
+                  : "border-gray-200"
+              }`}
             >
-              DELETE
-            </button>
-          </div>
-        ))}
+              <input
+                type="checkbox"
+                checked={habit.completedToday}
+                onChange={(e) => AddHabitLog(habit.id, e.target.checked)}
+              />
+              <div className="flex flex-col flex-1">
+                <span
+                  className={`font-medium ${habit.completedToday ? "line-through text-gray-400" : ""}`}
+                >
+                  {habit.title}
+                </span>
+
+                {habit.description && (
+                  <span className="text-gray-500 text-sm">
+                    {habit.description}
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={() => DeleteHabit(habit.id)}
+                className="bg-blue-500 text-white px-1 py-1 rounded hover:bg-blue-600"
+              >
+                DELETE
+              </button>
+            </div>
+          ))
+        )}
       </div>
     </main>
   );
